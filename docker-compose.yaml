@@ -25,7 +25,7 @@ services:
     working_dir: /usr/src/app
     command: npm start
     ports:
-      - 5225:5225
+      - 5113:5113
     logging:
       driver: syslog
       options:
