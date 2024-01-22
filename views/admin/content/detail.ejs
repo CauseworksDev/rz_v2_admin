@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+
+<head>
+
+    <% include ../inc/head_script %>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+
+    <script>
+
+        let albumBucketName = "gpjw-media-public";
+        let bucketRegion = "ap-northeast-2";
+        let IdentityPoolId = 'ap-northeast-2:7e1f6df0-db23-451e-9e3a-1687842787e1';
+
+        AWS.config.update({
+            region: bucketRegion,
+            credentials: new AWS.CognitoIdentityCredentials({
+                IdentityPoolId: IdentityPoolId
+            })
+        });
+
+        let s3 = new AWS.S3({
+            apiVersion: "2006-03-01",
+            params: {Bucket: albumBucketName}
+        });
+        // snippet-end:[s3.JavaScript.photoAlbumExample.config]
+
+        // snippet-start:[s3.JavaScript.photoAlbumExample.listAlbums]
+        function listAlbums() {
+            s3.listObjects({Delimiter: "/"}, function (err, data) {
+                if (err) {
+                    return alert("There was an error listing your albums: " + err.message);
+                } else {
+                    let albums = data.CommonPrefixes.map(function (commonPrefix) {
+                        let prefix = commonPrefix.Prefix;
+                        let albumName = decodeURIComponent(prefix.replace("/", ""));
+                        return getHtml([
+                            "<li>",
+                            "<span onclick=\"deleteAlbum('" + albumName + "')\">X</span>",
+                            "<span onclick=\"viewAlbum('" + albumName + "')\">",
+                            albumName,
+                            "</span>",
+                            "</li>"
+                        ]);
+                    });
+                    let message = albums.length
+                        ? getHtml([
+                            "<p>Click on an album name to view it.</p>",
+                        ])
+                        : "<p>You do not have any albums. Please Create album.";
+                    let htmlTemplate = [
+                        "<h2>Albums</h2>",
+                        message,
+                        "<ul>",
+                        getHtml(albums),
+                        "</ul>",
+                        "<button onclick=\"createAlbum(prompt('Enter Album Name:'))\">",
+                        "Create New Album",
+                        "</button>"
+                    ];
+                    document.getElementById("app").innerHTML = getHtml(htmlTemplate);
+                }
+            });
+        }
+
+        // snippet-end:[s3.JavaScript.photoAlbumExample.listAlbums]
+
+        // snippet-start:[s3.JavaScript.photoAlbumExample.createAlbum]
+        function createAlbum(albumName) {
+            albumName = albumName.trim();
+            if (!albumName) {
+                return alert("Album names must contain at least one non-space character.");
+            }
+            if (albumName.indexOf("/") !== -1) {
+                return alert("Album names cannot contain slashes.");
+            }
+            let albumKey = encodeURIComponent(albumName);
+            s3.headObject({Key: albumKey}, function (err, data) {
+                if (!err) {
+                    return alert("Album already exists.");
+                }
+                if (err.code !== "NotFound") {
+                    return alert("There was an error creating your album: " + err.message);
+                }
+                s3.putObject({Key: albumKey}, function (err, data) {
+                    if (err) {
+                        return alert("There was an error creating your album: " + err.message);
+                    }
+                    alert("Successfully created album.");
+                    viewAlbum(albumName);
+                });
+            });
+        }
+
+        // snippet-end:[s3.JavaScript.photoAlbumExample.createAlbum]
+
+        // snippet-start:[s3.JavaScript.photoAlbumExample.viewAlbum]
+        function viewAlbum(albumName) {
+            let server = '<%=server %>'
+            let albumPhotosKey = 'web/'+server + '/content/' + encodeURIComponent(albumName)+'/';
+            s3.listObjects({Prefix: albumPhotosKey}, function (err, data) {
+                if (err) {
+                    return alert("There was an error viewing your album: " + err.message);
+                }
+                // 'this' references the AWS.Response instance that represents the response
+                let href = this.request.httpRequest.endpoint.href;
+                let bucketUrl = href + albumBucketName + "/";
+
+                let photos = data.Contents.map(function (photo) {
+                    let photoKey = photo.Key;
+                    let photoUrl = bucketUrl + encodeURIComponent(photoKey);
+                });
+
+                $("#tbl_dataList2").empty();
+
+                if ($('.pagination').data("twbs-pagination")) {
+                    $('.pagination').twbsPagination('destroy');
+                }
+                let contentId = null
+                if ($("#contentId").val()) {
+                    contentId = $("#contentId").val()
+                } else {
+                    contentId = $("#contentId_text").text()
+                }
+                let reqData = {
+                    "contentId": contentId,
+                    "pageNo": 1,
+                    "numOfRows": 15
+                };
+                let apiList = null;
+                $.ajax({
+                    url: "/api/content/v1.0/img",
+                    dataType: "json",
+                    data: reqData,
+                    type: "get",
+                    cache: false,
+                    success: function (result1, s, j) {
+                        apiList = result1.data.items;
+
+                        let itemHTMLAddr = '';
+                        let list = data.Contents
+                        $("#tbl_dataList2").empty();
+                        $.each(list, function (idx, item) {
+                            let mainStatus = '' +
+                                '           <span class="btn btn-primary" onclick="updatePhoto(\'' + item.Key + '\',\'1\',\'' + bucketUrl + encodeURIComponent(item.Key) + '\')">대표이미지 설정</span> <br><br> '
+                            apiList.filter(function (object) {
+                                let checkUrl = (object['url'])
+                                let findUrl = (bucketUrl) + encodeURIComponent(item.Key)
+                                if (checkUrl == findUrl) {
+                                    if (object['type'] == 1) {
+                                        // mainStatus = 'O <br>' +
+                                        //     '           <span class="btn btn-danger" onclick="updatePhoto(\'' + item.Key + '\',\'0\',\'' + bucketUrl + encodeURIComponent(item.Key) + '\')">대표이미지 해제</span>'
+                                        mainStatus = `<span class="btn btn-danger" onclick="updatePhoto('${item.Key}','0','${bucketUrl + encodeURIComponent(item.Key)}')">대표 이미지 해제 </span>`
+                                        // mainStatus = ''
+                                    }
+
+                                }
+
+                            })
+                            itemHTMLAddr = itemHTMLAddr +
+                                '<tr>' +
+                                '    <td>' + bucketUrl + encodeURIComponent(item.Key) + '</td>' +
+                                '    <td>' + mainStatus +
+                                '   </td>' +
+                                '    <td><img style="width:128px;height:128px;" src="' + bucketUrl + encodeURIComponent(item.Key) + '"/>' +
+                                '    </td>' +
+                                '    <td>' +
+                                `<span class="btn btn-danger" onclick="deletePhoto('${albumName}','${item.Key}','0','${bucketUrl + encodeURIComponent(item.Key)}')">이미지 삭제 </span><br>`+
+                                // '<span class="btn btn-danger" onclick="deletePhoto(\''+albumName+'\',\''+item.Key+'\')">이미지 삭제</span><br>' +
+                                '    </td>' +
+                                '</tr>';
+
+                        });
+
+                        $("#tbl_dataList2").append(itemHTMLAddr);
+                        let message = photos.length
+                            ? "<p></p>"
+                            : "<p>You do not have any photos in this album. Please add photos.</p>";
+                        let htmlTemplate = [
+                            "<h2>",
+                            "Album: " + albumName,
+                            "</h2>",
+                            message,
+                            "<div>",
+                            getHtml(photos),
+                            "</div>",
+                            '<input  id="photoupload" type="file" accept="image/*" multiple>',
+                            '<button id="addphoto" onclick="addPhoto(\'' + albumName + "')\">",
+                            "Add Photo",
+                            "</button>",
+                            // '<button onclick="listAlbums()">',
+                            // "Back To Albums",
+                            // "</button>"
+                        ];
+                        document.getElementById("app").innerHTML = getHtml(htmlTemplate);
+                    }
+                });
+
+            });
+        }
+
+        // snippet-end:[s3.JavaScript.photoAlbumExample.viewAlbum]
+
+        // snippet-start:[s3.JavaScript.photoAlbumExample.addPhoto]
+        let addCnt = 0
+
+        function addPhoto(albumName) {
+            if (addCnt == 0) {
+                addCnt = 1
+                let files = document.getElementById("photoupload").files;
+                if (!files.length) {
+                    return alert("Please choose a file to upload first.");
+                }
+                // alert(files.length)
+                for (const idx in files) {
+
+                    if (idx == 'length' || idx == 'item') {
+
+                    } else {
+                        let file = files[idx];
+                        let fileName = file.name;
+                        let serial = getSerial()
+                        let albumPhotosKey = encodeURIComponent(albumName);
+
+                        let photoKey = (serial);
+                        let dayDir = getDaySerial()
+                        let server = '<%=server%>'
+
+                        // Use S3 ManagedUpload class as it supports multipart uploads
+                        let upload = new AWS.S3.ManagedUpload({
+                            params: {
+                                Bucket: albumBucketName,
+                                Key: 'web/'+server + '/content/' + albumName + '/' + photoKey+'',
+                                Body: file,
+                                ACL: "public-read"
+                            }
+                        });
+
+                        let promise = upload.promise();
+
+                        promise.then(
+                            function (data) {
+                                // alert("Successfully uploaded photo.");
+
+                                let href = 'https://s3.ap-northeast-2.amazonaws.com/';
+                                let bucketUrl = href + albumBucketName + "/";
+                                insertPhoto(serial, dayDir, 0, (bucketUrl + encodeURIComponent(data.Key)), data.ETag, server)
+                                viewAlbum(albumName);
+                            },
+                            function (err) {
+
+                                return alert("There was an error uploading your photo: ", err.message, "번호", idx);
+                            }
+                        );
+                    }
+                }
+                addCnt = 0
+            }
+
+
+        }
+
+        // snippet-end:[s3.JavaScript.photoAlbumExample.addPhoto]
+
+        // snippet-start:[s3.JavaScript.photoAlbumExample.deletePhoto]
+        function deletePhoto(albumName, photoKey) {
+            swal({
+                title: "확인",
+                text: "이미지를 삭제 하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function (willDelete) {
+                    if (willDelete) {
+                        s3.deleteObject({Key: photoKey}, function (err, data) {
+                            if (err) {
+                                return alert("There was an error deleting your photo: ", err.message);
+                            }
+                        });
+                       
+                        deletePhotoGo(photoKey);
+                    } else {
+
+                    }
+                }
+            );
+
+        }
+
+        // snippet-end:[s3.JavaScript.photoAlbumExample.deletePhoto]
+
+        // snippet-start:[s3.JavaScript.photoAlbumExample.deleteAlbum]
+        function deleteAlbum(albumName) {
+            let albumKey = encodeURIComponent(albumName);
+            s3.listObjects({Prefix: albumKey}, function (err, data) {
+                if (err) {
+                    return alert("There was an error deleting your album: ", err.message);
+                }
+                let objects = data.Contents.map(function (object) {
+                    return {Key: object.Key};
+                });
+                s3.deleteObjects(
+                    {
+                        Delete: {Objects: objects, Quiet: true}
+                    },
+                    function (err, data) {
+                        if (err) {
+                            return alert("There was an error deleting your album: ", err.message);
+                        }
+                        alert("Successfully deleted album.");
+                        listAlbums();
+                    }
+                );
+            });
+        }
+
+        // snippet-end:[s3.JavaScript.photoAlbumExample.deleteAlbum]
+        // snippet-end:[s3.JavaScript.photoAlbumExample.complete]
+        $(document).ready(function () {
+            $("#store").attr('class', 'nav-link active');
+            $("#typeLanguage").val('en')
+            if ($("#row_id").val() != "") {
+                getBody($("#row_id").val())
+                viewAlbum($("#row_id").val())
+            }
+            $("#typeLanguage").on("change", function (e) {
+                let nowRowId = $("#row_id").val()
+                if (nowRowId) {
+                    getBody($("#row_id").val())
+                }
+
+            })
+        });
+        let insertPhoto = function (serialNo, dayDir, main, url, etag, env) {
+            let data = {
+                "contentId": $("#contentId_text").text(),
+                "media": [{
+                    serialNo: serialNo,
+                    main: main,
+                    dateDir: dayDir,
+                    env: env,
+                    etag: etag,
+                    url: url,
+                    type: 0
+                }]
+
+
+            };
+            console.log(data)
+            $.ajax({
+                url: "/api/content/v1.0/img",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                type: "post",
+                cache: false,
+                success: function (result1, s, j) {
+                    if (result1.result.resultCode == 200) {
+
+                    } else {
+
+                    }
+
+                }
+            });
+        }
+        let updatePhoto = function (serialNo, main, bukit, logo) {
+            swal({
+                title: "확인",
+                text: "해당 이미지를 대표이미지로 선택하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function (willDelete) {
+                    if (willDelete) {
+                        updatePhotoGo(serialNo, main, logo);
+
+                    } else {
+
+                    }
+                }
+            );
+        }
+        let updatePhotoGo = function (serialNo, main, logo) {
+            let spl = serialNo.split('/')
+
+            let data = {
+                "contentId": $("#contentId_text").text(),
+                "serialNo": [spl[4]],
+
+
+            };
+
+            if (main == 1) {
+                data.type = 1
+            } else if (main == 2) {
+                data.type = 2
+            } else {
+                data.type = 0
+            }
+            $.ajax({
+                url: "/api/content/v1.0/img",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                type: "put",
+                cache: false,
+                success: function (result1, s, j) {
+                    if (result1.result.resultCode == 200) {
+                        viewAlbum($("#row_id").val())
+                    } else {
+
+                    }
+
+                }
+            });
+        }
+        let deletePhotoGo = function (serialNo) {
+            let spl = serialNo.split('/')
+
+            let data = {
+                "contentId": $("#contentId_text").text(),
+                "serialNo": [spl[4]],
+
+
+            };
+
+            $.ajax({
+                url: "/api/content/v1.0/img",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                type: "delete",
+                cache: false,
+                success: function (result1, s, j) {
+                    if (result1.result.resultCode == 200) {
+                        viewAlbum($("#row_id").val())
+                    } else {
+
+                    }
+
+                }
+            });
+        }
+        let updatecontent = function () {
+            let rowData = {}
+            // let testContent = oEditors.getById["contentText"].exec("UPDATE_CONTENTS_FIELD", []);
+            rowData.contentId = $("#row_id").val()
+            rowData.sort = $("#sort").val()
+            rowData.type = $("#type").val()
+            rowData.status = $("#status").val()
+            rowData.category = $("#category").val()
+            rowData.isTop = $("#isTop").val()
+
+            rowData.link = $("#link").val()
+            rowData.title = $("#title").val()
+            // rowData.contentText = $("#contentText").val().replace(/"/g, '\\\'')
+            rowData.contentText = $("#contentText").val()
+            console.log(rowData)
+            $.ajax({
+                url: "/api/content/v1.0/",
+
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(rowData),
+                type: "post",
+                cache: false,
+                success: function (result1, s, j) {
+                    if (result1.result.resultCode == 200) {
+                        swal(" success", {
+                            icon: "success"
+                        }).then(function (value) {
+                            window.history.back();
+                        });
+                    } else {
+                        swal(" fail", {
+                            icon: "error"
+                        }).then(function (value) {
+
+                        });
+                    }
+
+                }
+            });
+        }
+        let insertcontent = function () {
+            let rowData = {}
+            // let testContent = oEditors.getById["contentText"].exec("UPDATE_CONTENTS_FIELD", []);
+            rowData.sort = $("#sort").val()
+            rowData.type = $("#type").val()
+            rowData.status = $("#status").val()
+            rowData.category = $("#category").val()
+            rowData.isTop = $("#isTop").val()
+
+            rowData.link = $("#link").val()
+            rowData.title = $("#title").val()
+            // rowData.contentText = $("#contentText").val().replace(/"/g, '\\\'')
+            rowData.contentText = $("#contentText").val()
+
+            let data = rowData
+            console.log(data)
+            $.ajax({
+                url: "/api/content/v1.0/",
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                type: "post",
+                cache: false,
+                success: function (result1, s, j) {
+                    if (result1.result.resultCode == 200) {
+                        swal(" success", {
+                            icon: "success"
+                        }).then(function (value) {
+                            window.history.back();
+                        });
+                    } else {
+                        swal("insert fail", {
+                            icon: "err"
+                        }).then(function (value) {
+                        });
+                    }
+
+                }
+            });
+        }
+        let deletecontent = function () {
+            let data = {
+                "cid": '<%= session_user.cid %>',
+                "contentId": $("#contentId_text").text(),
+            };
+            $.ajax({
+                url: "<%= session_user.api_url %>/api/content/v1.0/content",
+                beforeSend: function (request) {
+                    request.setRequestHeader(API_TOKEN_PARAMS, '<%= session_user.token %>');
+                    request.setRequestHeader(API_KEY_PARAMS, '<%= session_user.apiKey %>');
+                },
+                contentType: "application/json",
+                dataType: "json",
+                data: JSON.stringify(data),
+                type: "DELETE",
+                cache: false,
+                success: function (result1, s, j) {
+                    swal(" success", {
+                        icon: "success"
+                    }).then(function (value) {
+                        window.history.back();
+                    });
+                }
+            });
+        }
+        let update = function () {
+            swal({
+                title: "확인",
+                text: "컨텐츠를 업데이트 하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function (willDelete) {
+
+                    if (willDelete) {
+                        // let testContent = oEditors.getById["contentText"].exec("UPDATE_CONTENTS_FIELD", []);
+                        if ($("#title").val() == '' || $("#type").val() == ''||$("#status").val() == '') {
+                            swal("타이틀을 입력해주세요", {
+                                icon: "error"
+                            }).then(function (value) {
+
+                            });
+                        } else {
+                            let pass = true
+                            if($("#category").val() == 2){
+                                if(!$("#link").val()){
+                                    pass = false
+                                    swal("링크 항목을 입력해주세요.", {
+                                        icon: "error"
+                                    }).then(function (value) {
+
+                                    });
+                                }
+                            }
+                            if(pass == true){
+                                updatecontent();
+                            }
+
+                        }
+                    } else {
+
+                    }
+
+                }
+            );
+        }
+
+        let insert = function () {
+            swal({
+                title: "Confirm",
+                text: "컨텐츠를 저장하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function (willDelete) {
+                    if (willDelete) {
+                        // let testContent = oEditors.getById["contentText"].exec("UPDATE_CONTENTS_FIELD", []);
+                        if ($("#title").val() == '' || $("#type").val() == '') {
+                            swal("타이틀을 입력해주세요.", {
+                                icon: "error"
+                            }).then(function (value) {
+
+                            });
+                        } else {
+                            let pass = true
+                            if($("#category").val() == 2){
+                                if(!$("#link").val()){
+                                    pass = false
+                                    swal("링크 항목을 입력해주세요.", {
+                                        icon: "error"
+                                    }).then(function (value) {
+
+                                    });
+                                }
+                            }
+                            if(pass == true){
+                                insertcontent();
+                            }
+
+                        }
+                    } else {
+
+                    }
+                }
+            );
+        }
+
+        let del = function () {
+            swal({
+                title: "Confirm",
+                text: "Are you sure you want to delete the Discover?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            }).then(function (willDelete) {
+                    if (willDelete) {
+                        deletecontent();
+                    } else {
+
+                    }
+                }
+            );
+        }
+
+
+        let getBody = function (val) {
+
+            let data = {
+                "contentId": val,
+                // "cidMerchant": 320120313254984,
+            };
+
+            $.ajax({
+                url: "/api/content/v1.0/",
+                dataType: "json",
+                data: data,
+                type: "get",
+                cache: false,
+                success: function (result1, s, j) {
+                    let list = result1.data.items[0];
+                    let targetLanguage = ''
+                    let itemHTMLAddr = "";
+
+                    let nowLanguage = $("#typeLanguage").val()
+                    if (list.length == 0) {
+
+                    } else {
+                        $("#nowRowValue").val(JSON.stringify(list))
+                        $.each(list, function (idx, item) {
+                            if ($("#" + idx).length != 0) {
+                                let type = $("#" + idx).get(0).tagName
+                                if (type == 'SELECT') {
+                                    $("#" + idx).val(item).attr("selected", "selected");
+                                    if (idx == "type") {
+                                        $('#type').val(item).select2();
+                                    }else if (idx == "linkType") {
+                                        $('#linkType').val(item).select2();
+                                    }else if (idx == "status") {
+                                        $('#status').val(item).select2();
+                                    } else if (idx == 'isTop') {
+                                        $('#isTop').val(item).select2();
+                                    }else if (idx == 'category') {
+                                        $('#category').val(item).select2();
+                                    }
+
+                                } else {
+
+                                    if (idx == 'contentId') {
+                                        $("#contentId_text").text(item)
+                                    } else if (idx == 'sort') {
+
+                                        $("#sort").text(item)
+                                        $("#sort").val(item)
+
+                                    } else if (idx == 'title') {
+                                        if(item){
+                                            targetLanguage = nowLanguage
+                                        }else{
+                                            targetLanguage = 'en'
+                                        }
+                                        $("#title").text(item)
+                                        $("#title").val(item)
+                                    } else if (idx == 'link') {
+
+                                        $("#link").text(item)
+                                        $("#link").val(item)
+                                    }  else if (idx == 'contentText') {
+                                        if (item) {
+                                            $("#contentText").text(item)
+                                            $("#contentText").val(item)
+                                            try {
+                                                // oEditors.getById["contentText"].exec("SET_IR", [""]);
+                                                // oEditors.getById["contentText"].exec("PASTE_HTML", [item])
+                                            } catch (e) {
+
+                                            }
+                                        } else {
+                                            $("#contentText").text()
+                                            $("#contentText").val()
+                                            // oEditors.getById["contentText"].exec("SET_IR", [""]);
+
+                                        }
+                                    }  else {
+                                        $("#" + idx + "").text(item)
+                                        $("#" + idx + "").val(item)
+                                    }
+
+                                }
+                            } else {
+
+                                if (idx == 'contentId') {
+                                    $("#contentId_text").text(item)
+                                } else {
+                                    $("#" + idx + "").text(item)
+                                    $("#" + idx + "").val(item)
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+    </script>
+    <script>
+        function getHtml(template) {
+            return template.join('\n');
+        }
+
+    </script>
+</head>
+<script type="text/javascript">
+
+
+</script>
+<body class="nk-body bg-lighter npc-default has-sidebar ">
+<div class="nk-app-root">
+    <!-- main @s -->
+    <div class="nk-main ">
+        <% include ../inc/side %>
+        <!-- wrap @s -->
+        <div class="nk-wrap ">
+            <!-- main header @s -->
+            <div class="nk-header nk-header-fixed is-light">
+                <div class="container-fluid">
+                    <div class="nk-header-wrap">
+                        <input id="nowRowValue" type="hidden" value="">
+                        <div class="nk-menu-trigger d-xl-none ml-n1">
+                            <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em
+                                        class="icon ni ni-menu"></em></a>
+                        </div>
+                        <% include ../inc/top %>
+                    </div><!-- .nk-header-wrap -->
+                </div><!-- .container-fliud -->
+            </div>
+            <!-- main header @e -->
+            <!-- content @s -->
+            <div class="nk-content ">
+                <input type="hidden" id="page_status" value="1">
+                <div class="container-fluid">
+                    <div class="nk-content-inner">
+                        <div class="nk-content-body">
+                            <div class="nk-block-head nk-block-head-sm">
+                                <div class="nk-block-between">
+                                    <div class="nk-block-head-content">
+                                        <% if(rows != 'new'){ %>
+                                            <h5 class="mb-0">컨텐츠 디테일</h5>
+                                            <input type="hidden" id="row_id" name="row_id" value=<%= rows %>>
+                                        <% }else{ %>
+                                            <h5 class="mb-0">컨텐츠 추가</h5>
+                                            <input type="hidden" id="row_id" name="row_id" value="">
+                                        <% } %>
+                                    </div><!-- .nk-block-head-content -->
+                                    <div class="col-lg-4">
+
+
+                                    </div>
+                                    <!--                                    <div id="searchTypeSelect">-->
+                                    <!--                                        <select class="form-select" data-init-plugin="cs-select" id="typeLanguage">-->
+                                    <!--                                            <option value="ko">ko</option>-->
+                                    <!--                                            <option value="en">en</option>-->
+                                    <!--                                            <option value="ja">ja</option>-->
+                                    <!--                                            <option value="zh-Hans">zh-Hans</option>-->
+                                    <!--                                            <option value="zh-Hant">zh-Hant</option>-->
+                                    <!--                                            <option value="vi">vi</option>-->
+                                    <!--                                        </select>-->
+                                    <!--                                    </div>-->
+                                    <% if(rows != 'new'){ %>
+                                        <a href="javascript:update()">
+                                            <button id="update" class="btn btn-primary" type="button">업데이트</button>
+                                        </a>
+                                    <% }else{ %>
+                                        <a href="javascript:insert()">
+                                            <button id="insert" class="btn btn-primary" type="button">저장</button>
+                                        </a>
+                                    <% } %>
+                                    <div class="nk-block-head-content">
+                                        <div class="toggle-wrap nk-block-tools-toggle">
+                                            <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1"
+                                               data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                                            <div class="toggle-expand-content" data-content="pageMenu">
+                                                <ul class="nk-block-tools g-3">
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div><!-- .nk-block-head-content -->
+                                </div><!-- .nk-block-between -->
+                            </div><!-- .nk-block-head -->
+
+                            <br>
+                            <div class="nk-block">
+                                <div class="row g-gs">
+                                    <div class="col-sm-6 col-lg-6">
+                                        <!-- START card -->
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <form id="form-work" class="form-horizontal" role="form">
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname" class="col-md-5 control-label">고유
+                                                                    아이디</label>
+                                                                <div class="col-md-7" id="contentId_text">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname" class="col-md-5 control-label">
+                                                                    타이틀</label>
+                                                                <div class="col-md-7" id="">
+                                                                    <input type="text" id="title" name="title"
+                                                                           value="">
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname"
+                                                                       class="col-md-5 control-label">링크</label>
+                                                                <div class="col-md-7" id="">
+                                                                    <input type="text" id="link" value=""
+                                                                           style="width: 100%">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname"
+                                                                       class="col-md-5 control-label">탑 고정글</label>
+                                                                <div class="col-md-7" id="">
+                                                                    <select class="form-select" id="isTop"
+                                                                            data-init-plugin="cs-select">
+                                                                        <option value="1">NO</option></option>
+                                                                        <option value="2">YES</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- END card -->
+                                    </div>
+                                    <div class="col-sm-6 col-lg-6">
+                                        <!-- START card -->
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <form id="form-work" class="form-horizontal" role="form">
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname"
+                                                                       class="col-md-5 control-label">우선순위</label>
+                                                                <div class="col-md-7" id="">
+                                                                    <input type="number" id="sort" value="">
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname"
+                                                                       class="col-md-5 control-label">활성화여부</label>
+                                                                <div class="col-md-7">
+                                                                    <select class="form-select" id="status"
+                                                                            data-init-plugin="cs-select">
+                                                                        <option value="1">활성화</option>
+                                                                        <option value="2">비활성화</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname"
+                                                                       class="col-md-5 control-label">게시글 타입</label>
+                                                                <div class="col-md-7" id="permissionDevice">
+                                                                    <select class="form-select" id="type"
+                                                                            data-init-plugin="cs-select">
+                                                                        <option value="1">아카데미</option>
+                                                                        <option value="2">게시판</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <label for="fname"
+                                                                       class="col-md-5 control-label">카테고리</label>
+                                                                <div class="col-md-7" id="permissionDevice">
+                                                                    <select class="form-select" id="category"
+                                                                            data-init-plugin="cs-select">
+                                                                        <option value="1">이미지</option>
+                                                                        <option value="2">동영상</option>
+                                                                        <option value="3">카드뉴스</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- END card -->
+                                    </div>
+                                    <div class="col-sm-12 col-lg-12">
+                                        <!-- START card -->
+                                        <div class="card">
+                                            <div class="card-header">
+                                                컨텐츠
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <form id="form-work" class="form-horizontal" role="form">
+                                                            <div class="form-group row"
+                                                                 style="border-bottom: 1px solid #e0e0e0">
+                                                                <div class="col-md-12" id="">
+                                                                    <textarea name="contentText" id="contentText"
+                                                                              rows="10" cols="100"
+                                                                              style="width: 100%"></textarea>
+                                                                </div>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- END card -->
+                                    </div>
+                                </div>
+                            </div><!-- .nk-block -->
+
+                            <div class="nk-block">
+                                <div class="nk-tb-list is-separate is-medium mb-3" id="tbl_content_img_list">
+
+
+                                </div><!-- .nk-tb-list -->
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="table-responsive">
+
+                                            <div id="app"></div>
+                                            <br>
+                                            <table class="table">
+                                                <thead>
+                                                <tr class="table-active">
+                                                    <th>key</th>
+                                                    <th>main</th>
+                                                    <th>img</th>
+                                                    <th></th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="tbl_dataList2">
+
+                                                </tbody>
+                                            </table>
+
+                                        </div>
+                                    </div>
+                                    <div class="row">
+
+
+                                    </div>
+                                </div>
+                            </div><!-- .nk-block -->
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content @e -->
+            <!-- footer @s -->
+            <div class="nk-footer">
+                <div class="container-fluid">
+                    <div class="nk-footer-wrap">
+                        <div class="nk-footer-copyright"> &copy; GPGW by CauseWorks Inc. All Rights reserved.
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- footer @e -->
+        </div>
+        <!-- wrap @e -->
+    </div>
+    <!-- main @e -->
+</div>
+<!-- app-root @e -->
+<!-- Modal Default -->
+
+<!-- Modal Default -->
+<!-- JavaScript -->
+
+<script type="text/javascript" src="/public/SE2/js/service/HuskyEZCreator.js" charset="utf-8"></script>
+<!--<script type="text/javascript">-->
+<!--    let oEditors = [];-->
+<!--    let oEditors2 = [];-->
+<!--    let oEditors3 = [];-->
+
+<!--    $(function () {-->
+<!--        nhn.husky.EZCreator.createInIFrame({-->
+<!--            oAppRef: oEditors,-->
+<!--            elPlaceHolder: "contentText",-->
+<!--            //SmartEditor2Skin.html 파일이 존재하는 경로-->
+<!--            sSkinURI: "/public/SE2/SmartEditor2Skin.html",-->
+<!--            htParams: {-->
+<!--                // 툴바 사용 여부 (true:사용/ false:사용하지 않음)-->
+<!--                bUseToolbar: true,-->
+<!--                // 입력창 크기 조절바 사용 여부 (true:사용/ false:사용하지 않음)-->
+<!--                bUseVerticalResizer: true,-->
+<!--                // 모드 탭(Editor | HTML | TEXT) 사용 여부 (true:사용/ false:사용하지 않음)-->
+<!--                bUseModeChanger: true,-->
+<!--                fOnBeforeUnload: function () {-->
+
+<!--                }-->
+<!--            },-->
+<!--            fOnAppLoad: function () {-->
+<!--                //textarea 내용을 에디터상에 바로 뿌려주고자 할때 사용-->
+<!--                // oEditors.getById["ir1"].exec("PASTE_HTML", [""]);-->
+<!--            },-->
+<!--            fCreator: "createSEditor2"-->
+<!--        })-->
+
+<!--    });-->
+<!--</script>-->
+<script src="/public/office/assets/js/bundle.js?ver=2.3.0"></script>
+<script src="/public/office/assets/js/scripts.js?ver=2.3.0"></script>
+<script src="/public/office/assets/js/sweetalert.min.js"></script>
+<script src="/public/system/assets/js/jquery.twbsPagination.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL JS -->
+</body>
+
+</html>

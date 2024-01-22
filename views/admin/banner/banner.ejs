@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+
+<head>
+
+    <% include ../inc/head_script %>
+
+</head>
+<script type="text/javascript">
+    let cidOwner = ''
+    $(document).ready(function () {
+        $("#user").attr('class', 'nav-link active');
+        $("#trash").hide()
+        setDate2()
+        getList('<%= result.pageInfo %>')
+        getBannerSetter()
+        $('#bannerOption').change(function () {
+            goBannerSetting()
+            // let active = 1
+            // if ($('#bannerOption').is(':checked')) {
+            //     active = 1
+            // } else {
+            //     active = 2
+            // }
+            // let data = {
+            //     active: active
+            // }
+            // $.ajax({
+            //     url: "/api/banner/v1.0/setting/",
+            //     contentType: "application/json",
+            //     dataType: "json",
+            //     data: JSON.stringify(data),
+            //     type: "post",
+            //     cache: false,
+            //     success: function (result1, s, j) {
+            //         if (result1.result.resultCode == 200) {
+            //             console.log("배너 설정 변경")
+            //         }
+            //
+            //
+            //     }
+            // });
+        })
+        $('#bannerOptionTop').change(function () {
+            goBannerSetting()
+        })
+        $('#bannerOptionBottom').change(function () {
+            goBannerSetting()
+        })
+        // window.location = document.location.href;
+
+    });
+    function goBannerSetting(){
+        let active = 1
+        let top = 1
+        let bottom = 1
+        if ($('#bannerOption').is(':checked')) {
+            active = 1
+        } else {
+            active = 2
+        }
+        if ($('#bannerOptionTop').is(':checked')) {
+            top = 1
+        } else {
+            top = 2
+        }
+        if ($('#bannerOptionBottom').is(':checked')) {
+            bottom = 1
+        } else {
+            bottom = 2
+        }
+        let data = {
+            active: active,
+            top: top,
+            bottom: bottom,
+        }
+        $.ajax({
+            url: "/api/banner/v1.0/setting/",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            type: "post",
+            cache: false,
+            success: function (result1, s, j) {
+                if (result1.result.resultCode == 200) {
+                    // console.log("배너 설정 변경")
+                }
+
+
+            }
+        });
+    }
+    function goDetail(bannerId) {
+        let url = window.location.protocol + "//" + window.location.host + window.location.pathname
+        history.pushState(null, null, url + "?page=" + $("#page_status").val());
+
+        location.href = "/admin/office/banner/detail?bannerId=" + bannerId;
+    }
+
+    function goDetail2() {
+        let page = $('.on').text();
+        let lang = $('#language').val();
+        let no = '';
+        $("#status").show()
+        location.href = "/admin/office/banner/detail?"
+    }
+
+    let getList = function (val) {
+        $("#page_status").val(val)
+        $("#tbl_dataList").empty();
+
+        let data = {
+            status: $('input[name="status_active"]:checked').val(),
+            title: $('#title').val(),
+            reqWhere: 1,
+            pageNo: val,
+            numOfRows: 20
+        };
+
+        $.ajax({
+            url: "/api/banner/v1.0/",
+            dataType: "json",
+            data: data,
+            beforeSend: function (request) {
+            },
+            type: "get",
+            cache: false,
+            success: function (result1, s, j) {
+                let list = result1.data.items;
+                let page = val;
+                let row = result1.data.totalCount;
+                let language = $("#language").val()
+                if (!list || list.length == 0) {
+                    let tr = $("<tr/>").append($("<td colspan='11'/>").text("등록된 내용이 없습니다.").css("text-align", "center"));
+                    $("#tbl_dataList").append(tr);
+                } else {
+                    let itemHTMLAddr = '<div class="nk-tb-item nk-tb-head">' +
+                        '                                            <div class="nk-tb-col"><span>NO</span></div>\n' +
+                        '                                            <div class="nk-tb-col"><span>컨텐츠이름</span></div>\n' +
+                        '                                            <div class="nk-tb-col"><span>활성화</span></div>\n' +
+                        '                                            <div class="nk-tb-col"><span>우선순위</span></div>\n' +
+                        '                                            <div class="nk-tb-col"><span>등록일</span></div>\n' +
+                        '                                            <div class="nk-tb-col"><span>수정일</span></div>\n' +
+                        '                                            <div class="nk-tb-col"><span>관리</span></div>\n' +
+                        '                                        </div><!-- .nk-tb-item -->';
+                    let itemHTMLAddr2 = '';
+
+
+                    $.each(list, function (idx, item) {
+                        let dateReg = '-'
+                        if (item.dateReg) {
+                            dateReg = getTimeStamp(item.dateReg)
+                        }
+                        let dateLast = '-'
+                        if (item.dateLast) {
+                            dateLast = getTimeStamp(item.dateLast)
+                        }
+                        let title = ""
+                        if (item.title) {
+                            title = (item.title)
+                        }
+
+                        let active = ""
+                        let unActiveBtn = `
+                        <span class="tb-lead" >
+                            <a href="javascript:unActive('${item.bannerId}',3)" class="btn btn-lg btn-rounded btn-danger" style="font-size: 13px">
+                                삭제
+                            </a>
+                        </span>
+                        `
+                        if (item.status == 1) {
+                            active = "YES"
+                        } else if (item.status == 2) {
+                            active = "NO"
+
+                        }
+                        let sort = ""
+                        if (item.sort) {
+                            sort = item.sort
+                        }
+
+                        itemHTMLAddr = itemHTMLAddr +
+                            `<div class="nk-tb-item" >
+                                <div class="nk-tb-col">
+                                   <span class="tb-sub">${((row - (20 * (page - 1))) - idx)}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                   <span class="tb-lead"><a href="javascript:goDetail('${item.bannerId}')">${textLengthCheck(title, 20)}</a></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                   <span class="tb-sub">${active}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                   <span class="tb-sub"><input type="number" class="form-control" id="${item.bannerId}" name="sortVal" value="${sort}"></span>
+                                </div>
+                                <div class="nk-tb-col">
+                                   <span class="tb-sub">${dateReg}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                   <span class="tb-sub">${dateLast}</span>
+                                </div>
+                                <div class="nk-tb-col">
+                                   ${unActiveBtn}
+                                </div>
+                            </div>`
+
+                    });
+                    $("#tbl_dataList").append(itemHTMLAddr);
+
+                    let totalPages = Math.ceil((row / 20));//전체 페이지
+                    if (totalPages < 1) {
+                        totalPages = 1
+                    }
+                    let visiblePages = 20;//리스트 보여줄 페이지
+                    let startPage = parseInt(val);//현재 페이지
+                    let page_data = $('#pagination').data();
+
+                    if (typeof (page_data.twbsPagination) != 'undefined') {
+                        if (page_data.twbsPagination.options.totalPages != totalPages) {
+                            $('#pagination').twbsPagination('destroy');         //데이터가 갱신되면 페이징 갱신
+                        }
+                    }
+                    $('#pagination').twbsPagination({
+                        totalPages: totalPages,
+                        visiblePages: visiblePages,
+                        startPage: startPage,
+                        initiateStartPageClick: false,
+                        onPageClick: function (event, val) {
+                            getList(parseInt(val));//보고 싶은 페이지
+                        }
+                    });
+
+                }
+
+            }
+        });
+
+    }
+    let bannerSortUpdate = function () {
+        let getSortInfo = $("input[name=sortVal]")
+        // console.log(getSortInfo)
+        let nowSortInfo = {}
+        $.each(getSortInfo, function (idx, item) {
+            if ($(item).val()) {
+                nowSortInfo[$(item).attr("id")] = $(item).val()
+            } else {
+                nowSortInfo[$(item).attr("id")] = null
+            }
+        })
+        // console.log(nowSortInfo)
+        let data = {
+            sortInfo: nowSortInfo
+        }
+        $.ajax({
+            url: "/api/banner/v1.0/sort/update",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            type: "put",
+            cache: false,
+            success: function (result1, s, j) {
+                if (result1.result.resultCode == 200) {
+                    location.reload()
+                }
+
+
+            }
+        });
+    }
+    let getBannerSetter = function () {
+        let data = {}
+        $.ajax({
+            url: "/api/banner/v1.0/setting/",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            type: "get",
+            cache: false,
+            success: function (result1, s, j) {
+                if (result1.result.resultCode == 200) {
+                    if (result1.data.active == 1) {
+                        // $('input:checkbox').prop('checked', true);
+                        $('#bannerOption').prop('checked', true);
+                    }
+                    if (result1.data.top == 1) {
+                        $('#bannerOptionTop').prop('checked', true);
+                    }
+                    if (result1.data.bottom == 1) {
+                        $('#bannerOptionBottom').prop('checked', true);
+                    }
+                }
+
+
+            }
+        });
+    }
+    let unActive = function (bannerId,status) {
+        swal({
+            title: "확인",
+            text: "배너를 삭제 하시겠습니까?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then(function (willDelete) {
+
+                if (willDelete) {
+                    unActiveBanner(bannerId,status);
+                } else {
+
+                }
+
+            }
+        );
+    }
+    let unActiveBanner = function (bannerId,status) {
+        let rowData = {
+            bannerId:bannerId,
+            status:status
+        }
+
+        $.ajax({
+            url: "/api/banner/v1.0/",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(rowData),
+            type: "delete",
+            cache: false,
+            success: function (result1, s, j) {
+                if (result1.result.resultCode == 200) {
+                    swal(" success", {
+                        icon: "success"
+                    }).then(function (value) {
+                        location.reload()
+                    });
+                } else {
+                    swal(" fail", {
+                        icon: "error"
+                    }).then(function (value) {
+
+                    });
+                }
+
+            }
+        });
+    }
+</script>
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        width: 60px;
+        -moz-appearance: textfield;
+    }
+</style>
+<body class="nk-body bg-lighter npc-default has-sidebar ">
+<div class="nk-app-root">
+    <!-- main @s -->
+    <div class="nk-main ">
+        <% include ../inc/side %>
+        <!-- wrap @s -->
+        <div class="nk-wrap ">
+            <!-- main header @s -->
+            <div class="nk-header nk-header-fixed is-light">
+                <div class="container-fluid">
+                    <div class="nk-header-wrap">
+                        <div class="nk-menu-trigger d-xl-none ml-n1">
+                            <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em
+                                        class="icon ni ni-menu"></em></a>
+                        </div>
+                        <% include ../inc/top %>
+                    </div><!-- .nk-header-wrap -->
+                </div><!-- .container-fliud -->
+            </div>
+            <!-- main header @e -->
+            <!-- content @s -->
+            <div class="nk-content ">
+                <input type="hidden" id="page_status" value="1">
+                <div class="container-fluid">
+                    <div class="nk-content-inner">
+                        <div class="nk-content-body">
+                            <div class="nk-block-head nk-block-head-sm">
+                                <div class="nk-block-between">
+                                    <div class="nk-block-head-content">
+                                        <h3 class="nk-block-title page-title">베너 리스트</h3>
+                                    </div><!-- .nk-block-head-content -->
+                                    <div class="nk-block-head-content">
+                                        <div class="toggle-wrap nk-block-tools-toggle">
+                                            <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1"
+                                               data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                                            <div class="toggle-expand-content" data-content="pageMenu">
+                                                <ul class="nk-block-tools g-3">
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div><!-- .nk-block-head-content -->
+                                </div><!-- .nk-block-between -->
+                            </div><!-- .nk-block-head -->
+                            <div class="row">
+                                <div class="col-3"></div>
+                                <div class="col-3">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="bannerOption">
+                                        <label class="custom-control-label" for="bannerOption">배너 show/hide</label>
+                                    </div>
+                                </div>
+                                <div class="col-3">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="bannerOptionTop">
+                                        <label class="custom-control-label" for="bannerOptionTop">top show/hide</label>
+                                    </div>
+                                </div><div class="col-3">
+                                    <div class="custom-control custom-switch">
+                                        <input type="checkbox" class="custom-control-input" id="bannerOptionBottom">
+                                        <label class="custom-control-label" for="bannerOptionBottom">bottom show/hide</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <div class="card card-default">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-4">
+                                            <h5>배너 이름
+                                            </h5>
+                                            <p>
+                                            </p>
+                                            <br>
+                                            <input type="text" class="form-control" id="bannerName">
+                                            <br>
+                                        </div>
+                                        <div class="col-lg-4">
+
+
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <h5>활성화 상태
+                                            </h5>
+                                            <br>
+                                            <div class="radio radio-success">
+                                                <input type="radio" value="" name="status_active" id="statusAll"
+                                                       checked>
+                                                <label for="active">전체 </label>
+                                                <input type="radio" value="1" name="status_active" id="active">
+                                                <label for="active">활성화 </label>
+                                                <input type="radio" value="2" name="status_active" id="anactive">
+                                                <label for="anactive">비활성화</label>
+
+                                            </div>
+                                            <a href="javascript:getList(1)">
+                                                <button aria-label=""
+                                                        class="btn btn-lg btn-rounded btn-primary pull-right ">조건 검색
+                                                </button>
+                                            </a>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- END card -->
+                            <br>
+                            <div class="nk-block">
+                                <div style="float:right">
+                                    <a href="javascript:bannerSortUpdate()">
+                                        <button aria-label="" class="btn btn-lg btn-rounded btn-primary pull-right ">순서
+                                            변경
+                                        </button>
+                                    </a>
+                                    <a href="javascript:goDetail2()">
+                                        <button aria-label="" class="btn btn-lg btn-rounded btn-primary pull-right ">+
+                                            베너 추가
+                                        </button>
+                                    </a>
+                                </div>
+
+                                <div class="nk-tb-list is-separate is-medium mb-3" id="tbl_dataList">
+
+                                </div><!-- .nk-tb-list -->
+                                <div class="card">
+                                    <div class="card-inner">
+                                        <div class="nk-block-between-md g-3">
+                                            <div class="g">
+                                                <ul class="pagination justify-content-center justify-content-md-start"
+                                                    id="pagination">
+                                                    <li class="page-item"><a class="page-link" href="#"><em
+                                                                    class="icon ni ni-chevrons-left"></em></a></li>
+                                                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                    <li class="page-item"><span class="page-link"><em
+                                                                    class="icon ni ni-more-h"></em></span></li>
+                                                    <li class="page-item"><a class="page-link" href="#">6</a></li>
+                                                    <li class="page-item"><a class="page-link" href="#">7</a></li>
+                                                    <li class="page-item"><a class="page-link" href="#"><em
+                                                                    class="icon ni ni-chevrons-right"></em></a></li>
+                                                </ul><!-- .pagination -->
+                                            </div>
+                                        </div><!-- .pagination-goto -->
+                                    </div><!-- .nk-block-between -->
+                                </div>
+                            </div>
+                        </div><!-- .nk-block -->
+                    </div>
+                </div>
+            </div>
+            <!-- content @e -->
+            <!-- footer @s -->
+            <div class="nk-footer">
+                <div class="container-fluid">
+                    <div class="nk-footer-wrap">
+                        <div class="nk-footer-copyright"> &copy; GPJW by CauseWorks Inc. All Rights reserved.
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- footer @e -->
+        </div>
+        <!-- wrap @e -->
+    </div>
+    <!-- main @e -->
+</div>
+<!-- app-root @e -->
+<!-- JavaScript -->
+<script src="/public/office/assets/js/bundle.js?ver=2.3.0"></script>
+<script src="/public/office/assets/js/scripts.js?ver=2.3.0"></script>
+<script src="/public/office/assets/js/sweetalert.min.js"></script>
+<script src="/public/system/assets/js/jquery.twbsPagination.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL JS -->
+</body>
+
+</html>

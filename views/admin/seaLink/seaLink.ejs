@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zxx" class="js">
+
+<head>
+
+    <% include ../inc/head_script %>
+
+</head>
+<script type="text/javascript">
+    let cidOwner =''
+    $(document).ready(function () {
+        $("#user").attr('class', 'nav-link active');
+        $("#trash").hide()
+        getRecycleInfo()
+
+
+    });
+
+    let getRecycleInfo = function(){
+        let data = {
+            pageNo:1,
+            numOfRows : 1
+        };
+
+        $.ajax({
+            url:"/api/content/v1.0/month/link",
+            dataType :"json",
+            data : data,
+            beforeSend: function (request) {
+            },
+            type:"get",
+            cache:false,
+            success : function(result1,s,j ){
+
+                let dateLast = '-'
+                if(result1.result.resultCode == 200){
+                    if(result1.data.resData.length == 1){
+                        $("#link").val(result1.data.resData[0].link)
+                        $("#btnText").val(result1.data.resData[0].btnText)
+                    }
+                }
+
+            }
+        });
+
+    }
+
+
+    let setLinkData = function (){
+        swal({
+            title: "Confirm",
+            text: "플로팅 버튼 설정을 저장 하시겠습니까?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then(function (willDelete) {
+                if (willDelete) {
+
+                    let pass = true
+                    if ($("#btnTitle").val() == '' ) {
+                        swal("버튼 텍스트를 입력해주세요", {
+                            icon: "error"
+                        }).then(function (value) {
+
+                        });
+                        pass = false
+                    }
+                    if(pass == true){
+                        setLink();
+
+                    }
+                } else {
+
+                }
+            }
+        );
+    }
+    let setLink = function (){
+
+        let data = {
+            link : $("#link").val(),
+            btnText : $("#btnText").val(),
+        }
+        $.ajax({
+            url:"/api/content/v1.0/month/link",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(data),
+            type:"post",
+            cache:false,
+            success : function(result1,s,j ){
+                if (result1.result.resultCode == 200) {
+                    swal(" success", {
+                        icon: "success"
+                    }).then(function (value) {
+                        window.location.reload();
+                    });
+                } else {
+                    swal(" fail", {
+                        icon: "error"
+                    }).then(function (value) {
+
+                    });
+                }
+
+
+            }
+        });
+    }
+
+</script>
+<style>
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Firefox */
+    input[type=number] {
+        width: 60px;
+        -moz-appearance: textfield;
+    }
+</style>
+<body class="nk-body bg-lighter npc-default has-sidebar ">
+<div class="nk-app-root">
+    <!-- main @s -->
+    <div class="nk-main ">
+        <% include ../inc/side %>
+        <!-- wrap @s -->
+        <div class="nk-wrap ">
+            <!-- main header @s -->
+            <div class="nk-header nk-header-fixed is-light">
+                <div class="container-fluid">
+                    <div class="nk-header-wrap">
+                        <div class="nk-menu-trigger d-xl-none ml-n1">
+                            <a href="#" class="nk-nav-toggle nk-quick-nav-icon" data-target="sidebarMenu"><em class="icon ni ni-menu"></em></a>
+                        </div>
+                        <% include ../inc/top %>
+                    </div><!-- .nk-header-wrap -->
+                </div><!-- .container-fliud -->
+            </div>
+            <!-- main header @e -->
+            <!-- content @s -->
+            <div class="nk-content ">
+                <input type="hidden" id="page_status"value="1">
+                <div class="container-fluid">
+                    <div class="nk-content-inner">
+                        <div class="nk-content-body">
+                            <div class="nk-block-head nk-block-head-sm">
+                                <div class="nk-block-between">
+                                    <div class="nk-block-head-content">
+                                        <h3 class="nk-block-title page-title">플로팅 버튼 관리</h3>
+                                    </div><!-- .nk-block-head-content -->
+                                    <div class="nk-block-head-content">
+                                        <div class="toggle-wrap nk-block-tools-toggle">
+                                            <a href="#" class="btn btn-icon btn-trigger toggle-expand mr-n1" data-target="pageMenu"><em class="icon ni ni-more-v"></em></a>
+                                            <div class="toggle-expand-content" data-content="pageMenu">
+                                                <ul class="nk-block-tools g-3">
+
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div><!-- .nk-block-head-content -->
+                                </div><!-- .nk-block-between -->
+                            </div><!-- .nk-block-head -->
+
+                            <br>
+                            <div class="card card-default">
+                                <div class="card-body">
+                                    <div class="row">
+
+                                        <div class="col-lg-4">
+                                            <h5>플로팅 버튼 링크
+                                            </h5>
+
+                                            <br>
+                                            <input type="text" class="form-control" id="link">
+                                            <br>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <h5>플로팅 버튼 텍스트
+                                            </h5>
+
+                                            <br>
+                                            <input type="text" class="form-control" id="btnText">
+                                            <br>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <br>
+                                            <br>
+                                            <div style="text-align: right">
+                                                <a href="javascript:setLinkData()">
+                                                    <button aria-label="" class="btn btn-lg btn-rounded btn-primary pull-right ">저장</button>
+                                                </a>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- END card -->
+                            <br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content @e -->
+            <!-- footer @s -->
+            <div class="nk-footer">
+                <div class="container-fluid">
+                    <div class="nk-footer-wrap">
+                        <div class="nk-footer-copyright"> &copy; GPJW by CauseWorks Inc. All Rights reserved.
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- footer @e -->
+        </div>
+        <!-- wrap @e -->
+    </div>
+    <!-- main @e -->
+</div>
+<!-- app-root @e -->
+<!-- JavaScript -->
+<script src="/public/office/assets/js/bundle.js?ver=2.3.0"></script>
+<script src="/public/office/assets/js/scripts.js?ver=2.3.0"></script>
+<script src="/public/office/assets/js/sweetalert.min.js"></script>
+<script src="/public/system/assets/js/jquery.twbsPagination.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL JS -->
+</body>
+
+</html>

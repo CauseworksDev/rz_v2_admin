@@ -1,0 +1,235 @@
+<base href="../">
+<meta charset="utf-8">
+<meta name="author" content="Softnio">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers.">
+<!-- Fav Icon  -->
+<link rel="shortcut icon" href="/public/test/images/common/favicon.ico" />
+<!-- Page Title  -->
+<title>GPJW ADMIN</title>
+<!-- StyleSheets  -->
+<link rel="stylesheet" href="/public/office/assets/css/dashlite.css?ver=2.3.0">
+<link id="skin-default" rel="stylesheet" href="/public/office/assets/css/theme.css?ver=2.3.0">
+<script src="/public/office/assets/plugins/jquery/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="/config/config.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        let sessionDark = '<%=session_user.dark%>'
+        if(!sessionDark){
+            $("body").addClass('dark-mode')
+        }
+        $(".dark-switch").click(function () {
+            let bodyClass = $("body").attr('class')
+            let dark = 2
+            if( /dark-mode/i.test(bodyClass)) {
+                // alert('다크인데 곧 화이트: '+bodyClass.toString())
+            }else {
+                // alert('화이트인데 곧 다크크: '+bodyClass.toString())
+                dark = 1
+            }
+            let data ={
+                dark : dark
+            }
+            $.ajax({
+                // url:"192.168.0.8:3001/api/account/v1.1/account/users",
+                url:"/system/",
+                dataType :"json",
+                data : data,
+                beforeSend: function (request) {
+                    request.setRequestHeader(API_TOKEN_PARAMS, '<%= session_user.token %>');
+                    request.setRequestHeader(API_KEY_PARAMS, '<%= session_user.apiKey %>');
+                },
+                type:"put",
+                cache:false,
+                success : function(result1,s,j ){
+
+
+                }
+            });
+        })
+
+    });
+    $(window).bind("pageshow", function(event) {
+        //back 이벤트 일 경우
+        if (event.originalEvent && event.originalEvent.persisted) {
+            window.location.reload();
+        }
+    });
+    let getTimeStampUtc= function (val) {
+        let d = new Date(val);
+        let s =
+            leadingZeros(d.getUTCFullYear(), 4) + '-' +
+            leadingZeros(d.getUTCMonth() + 1, 2) + '-' +
+            leadingZeros(d.getUTCDate(), 2) + ' ' +
+
+            leadingZeros(d.getUTCHours(), 2) + ':' +
+            leadingZeros(d.getUTCMinutes(), 2) + ':' +
+            leadingZeros(d.getUTCSeconds(), 2);
+
+
+
+        return s;
+
+    }
+    let getTimeStamp= function (val) {
+        let d = new Date(val);
+        // let time = d.getTime()-(9*60*60*1000)
+        let time = d.getTime()
+        let kTime = new Date(time);
+        let s =
+            leadingZeros(kTime.getFullYear(), 4) + '.' +
+            leadingZeros(kTime.getMonth() + 1, 2) + '.' +
+            leadingZeros(kTime.getDate(), 2) + ' ' +
+
+            leadingZeros(kTime.getHours(), 2) + ':' +
+            leadingZeros(kTime.getMinutes(), 2)
+
+
+
+        return s;
+
+    }
+    let getTimeStamp2= function (val) {
+        let d = new Date(val);
+        // let time = d.getTime()-(9*60*60*1000)
+        let time = d.getTime()
+        let kTime = new Date(time);
+        let s =
+            leadingZeros(kTime.getFullYear(), 4) + '.' +
+            leadingZeros(kTime.getMonth() + 1, 2) + '.' +
+            leadingZeros(kTime.getDate(), 2) + ' ' +
+
+            leadingZeros(kTime.getHours(), 2) + ':' +
+            leadingZeros(kTime.getMinutes(), 2) + ':' +
+            leadingZeros(d.getSeconds(), 2);
+
+
+        return s;
+
+    }
+    let getDayStamp= function (val) {
+        let d = new Date(val);
+        let s =
+            leadingZeros(d.getFullYear(), 4) + '-' +
+            leadingZeros(d.getMonth() + 1, 2) + '-' +
+            leadingZeros(d.getDate(), 2) ;
+
+        return s;
+
+    }
+    let getDayStamp2= function (val) {
+        let d = new Date(val);
+        let s =
+            leadingZeros(d.getMonth() + 1, 2) + '/' +
+            leadingZeros(d.getDate(), 2)+'/'+
+            leadingZeros(d.getFullYear(), 4) ;
+
+        return s;
+
+    }
+    let leadingZeros= function (n, digits) {
+        let zero = '';
+        n = n.toString();
+
+        if (n.length < digits) {
+            for (i = 0; i < digits - n.length; i++)
+                zero += '0';
+        }
+        return zero + n;
+
+    }
+    function setDate() {
+
+        $("#eDate").val(getDayStamp(new Date()))
+        let d = new Date()
+        let dayOfMonth = d.getDate()
+        d.setDate(dayOfMonth - 7)
+        $("#sDate").val(getDayStamp(d))
+    }
+    function setDate2() {
+
+        $("#eDate").val(getDayStamp2(new Date()))
+        let d = new Date()
+        let dayOfMonth = d.getDate()
+        d.setDate(dayOfMonth - 7)
+        $("#sDate").val(getDayStamp2(d))
+    }
+    function setDate3() {
+
+        $("#dateTo").val(getDayStamp2(new Date()))
+        let d = new Date()
+        let dayOfMonth = d.getDate()
+        d.setDate(dayOfMonth - 7)
+        $("#dateFrom").val(getDayStamp2(d))
+    }
+    function setDate4() {
+
+        $("#sDate").val(getDayStamp2(new Date()))
+        let d = new Date()
+        let dayOfMonth = d.getDate()
+        d.setDate(dayOfMonth + 31)
+        $("#eDate").val(getDayStamp2(d))
+    }
+    function textLengthCheck(str, len) {
+
+        let returnValue = "";
+        if (!len || len == "") {
+            return str;
+        }
+        if(str){
+            if (str.length > len) {
+                returnValue = str.substring(0, len) + "...";
+            }else {
+                returnValue = str;
+            }  
+        }else{
+            return ''
+        }
+
+
+        return returnValue;
+
+    }
+    let getTourTimeStamp= function (val) {
+        let d = val.toString();
+        let s =
+            leadingZeros(d.substring(0,4), 4) + '-' +
+            leadingZeros(d.substring(4,6), 2) + '-' +
+            leadingZeros(d.substring(6,8), 2) + ' ' +
+
+            leadingZeros(d.substring(8,10), 2) + ':' +
+            leadingZeros(d.substring(10,12), 2) + ':' +
+            leadingZeros(d.substring(12,14), 2);
+
+
+
+        return s;
+
+    }
+    let getSerial= function () {
+        let d = new Date().getTime()*1;
+        let r =Math.floor(Math.random() * 1000000000) + ''
+        let serial = d+r
+        serial = serial.substring(0,20)
+
+
+        return serial;
+
+    }
+    let getDaySerial= function () {
+        let d = new Date();
+
+        let s =
+            leadingZeros(d.getFullYear(), 4) + '' +
+            leadingZeros(d.getMonth() + 1, 2) + '' +
+            leadingZeros(d.getDate(), 2) + ''
+        return s;
+
+    }
+</script>
+
+<style>
+
+</style>

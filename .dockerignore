@@ -1,0 +1,4 @@
+#.dockerignore
+
+# dependencies
+/node_modules

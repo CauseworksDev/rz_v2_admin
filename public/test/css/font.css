@@ -1,0 +1,114 @@
+@charset "UTF-8";
+/* Noto Sans KR */
+@font-face {
+    font-family: Noto Sans KR;
+    src: url(/public/test/font/notosanskr/NotoSansKR-Thin.otf);
+    font-weight: 100;
+}
+@font-face {
+    font-family: Noto Sans KR;
+    src: url(/public/test/font/notosanskr/NotoSansKR-Light.otf);
+    font-weight: 300;
+}
+@font-face {
+    font-family: Noto Sans KR;
+    src: url(/public/test/font/notosanskr/NotoSansKR-Regular.otf);
+    font-weight: 400;
+}
+@font-face {
+    font-family: Noto Sans KR;
+    src: url(/public/test/font/notosanskr/NotoSansKR-Medium.otf);
+    font-weight: 500;
+}
+@font-face {
+    font-family: Noto Sans KR;
+    src: url(/public/test/font/notosanskr/NotoSansKR-Bold.otf);
+    font-weight: 700;
+}
+@font-face {
+    font-family: Noto Sans KR;
+    src: url(/public/test/font/notosanskr/NotoSansKR-Black.otf);
+    font-weight: 900;
+}
+/* Plus Jakarta Sans */
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-ExtraLight.ttf);
+    font-weight: 200;
+}
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-Light.ttf);
+    font-weight: 300;
+}
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-Regular.ttf);
+    font-weight: 400;
+}
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-Medium.ttf);
+    font-weight: 500;
+}
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-SemiBold.ttf);
+    font-weight: 600;
+}
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-Bold.ttf);
+    font-weight: 700;
+}
+@font-face {
+    font-family: Plus Jakarta Sans;
+    src: url(/public/test/font/jakartasans/PlusJakartaSans-ExtraBold.ttf);
+    font-weight: 800;
+}
+/* S Core Dream */
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream1.ttf);
+    font-weight: 100;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream2.ttf);
+    font-weight: 200;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream3.ttf);
+    font-weight: 300;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream4.ttf);
+    font-weight: 400;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream5.ttf);
+    font-weight: 500;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream6.ttf);
+    font-weight: 600;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream7.ttf);
+    font-weight: 700;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream8.ttf);
+    font-weight: 800;
+}
+@font-face {
+    font-family: S Core Dream;
+    src: url(/public/test/font/scdream/SCDream9.ttf);
+    font-weight: 900;
+}

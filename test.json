@@ -1,0 +1,37 @@
+{
+  "0": {
+    "status": "success",
+    "id": 4440811,
+    "output": [
+      "https://pub-8b49af329fae499aa563997f5d4068a4.r2.dev/generations/b1b3e57a-5a10-4e90-9d0b-289a0175ab8b-0.png",
+      "https://pub-8b49af329fae499aa563997f5d4068a4.r2.dev/generations/b1b3e57a-5a10-4e90-9d0b-289a0175ab8b-1.png"
+    ]
+  },
+  "status": "success",
+  "webhook_type": "success",
+  "track_id": "",
+  "id": 4440811,
+  "meta": {
+    "prompt": " face portrait of a beautiful eximLinSister in a coat and bra, close portrait, snow - covered small house in a background, night, stars in the sky, the milky way in the sky, winter landscape, painting by craig mullins, octane rendering, wide angle lens, in the style of hayao miyazaki, trending on artstation",
+    "negative_prompt": "ugly, fat, out of frame, extra fingers, poorly drawn face",
+    "model_id": "vshf09MRyG4UaB1pro25jbdke",
+    "width": 512,
+    "guidance": 7.5,
+    "height": 512,
+    "samples": 2,
+    "safety_checker": "no",
+    "steps": 20,
+    "seed": null,
+    "webhook": "ec2-52-53-192-37.us-west-1.compute.amazonaws.com:5113/api/content/v1.0/webhook/avatar",
+    "track_id": null,
+    "scheduler": "DDIMScheduler"
+  },
+  "data": {
+    "status": "success",
+    "id": 4440811,
+    "output": [
+      "https://pub-8b49af329fae499aa563997f5d4068a4.r2.dev/generations/b1b3e57a-5a10-4e90-9d0b-289a0175ab8b-0.png",
+      "https://pub-8b49af329fae499aa563997f5d4068a4.r2.dev/generations/b1b3e57a-5a10-4e90-9d0b-289a0175ab8b-1.png"
+    ]
+  }
+}

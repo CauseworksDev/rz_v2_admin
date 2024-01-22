@@ -1,0 +1,36 @@
+#
+# Copyright IBM Corp All Rights Reserved
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  basic:
+
+services:
+  node-app:
+    container_name: rzV2Admin
+    image: rzV2Admin/nodejs:v1.0.0
+    restart: always
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=net_basic
+      - NODE_ENV=$NODE_ENV
+      - AWS_ACCESS_KEY=$AWS_ACCESS_KEY
+      - AWS_SECRET_KEY=$AWS_SECRET_KEY
+      - AWS_REGION=$AWS_REGION
+      - LOG_ENV=$LOG_ENV
+
+    working_dir: /usr/src/app
+    command: npm start
+    ports:
+      - 5225:5225
+    logging:
+      driver: syslog
+      options:
+        tag: "rzV2Admin_web"
+    volumes:
+      - ./:/usr/src/app
+    networks:
+      - basic

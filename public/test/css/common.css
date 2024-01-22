@@ -1,0 +1,238 @@
+/* --------------------------------reset-------------------------------- */
+* {margin:0; padding:0; box-sizing:border-box; font:inherit; color:inherit; flex-shrink:0}
+html, body {font-size:16px; color:#3B393A; letter-spacing:-0.03em}
+@media screen and (min-width:1024.1px) and (max-width:1280px) {
+    html, body {font-size:14px}
+}/* md1 */
+@media screen and (min-width:767.1px) and (max-width:1024px) {
+    html, body {font-size:13px}
+}/* md2 */
+@media screen and (max-width:767px) {
+    html, body {font-size:12px}
+}/* sm */
+body, button, input, select, table, textarea {font-family:'Plus Jakarta Sans', 'Noto Sans KR', sans-serif}
+body {-webkit-text-size-adjust:none}
+h1, h2, h3, h4, h5, h6 {font-size:inherit; line-height:inherit}
+ul,ol,dl,menu,li {list-style:none}
+a, a:active, a:hover {text-decoration:none}
+button, input {-webkit-border-radius:0; border-radius:0; border:0}
+button {background-color:transparent; cursor:pointer; outline:none}
+blockquote, q {quotes:none}
+:after, :before {box-sizing:inherit}
+img, picture, video, canvas, svg {display:block; /*max-width:100%; */}
+fieldset,img {border:0}
+iframe {overflow:hidden; margin:0; border:0; padding:0; vertical-align:top}
+address, em,i {font-style:normal}
+textarea {-webkit-backface-visibility:hidden; backface-visibility:hidden; background-color:transparent; border:0; word-break:keep-all; word-wrap:break-word}
+table {border-collapse:collapse; border-spacing:0}
+td, th {padding:0}
+input, select, textarea {vertical-align:middle; outline:none; box-sizing:border-box; border-radius:0; -moz-appearance:none; -webkit-appearance:none; 
+appearance:none}
+/* --------------------------------reset end--------------------------- */
+
+
+/* --------------------------------common------------------------------ */
+html.fixed {height:100%}
+html.fixed body {height:100%; overflow:hidden}
+#wrap {position:relative; width:100%; min-width:320px; overflow:hidden}
+.blind {border:0; clip:rect(0 0 0 0); clip-path:inset(50%); width:1px; height:1px; margin:-1px; overflow:hidden; padding:0; position:absolute; white-space:nowrap}
+.font_scd {font-family:'S Core Dream', sans-serif}
+.clearfix::after {content:""; clear:both; display:block}
+
+#container {padding-top:5.625rem}
+section {position:relative; width:100%}
+section .inner,
+header .inner,
+footer .inner {position:relative; width:92%; max-width:1320px; margin:0 auto}
+/* 하단 고정 버튼 - 신청하기 링크 */
+#btn_link {width:7.5rem; height:7.5rem; position:fixed; bottom:7.5rem; border-radius:100%; z-index:100; background:#FCB416; display:flex; justify-content:center; align-items:center; flex-direction:column; box-shadow:0px 6px 10px 0px rgba(164, 115, 7, 0.40);/*padding:32px 0 28px 0;*/padding:0 0.6875rem; transition:all .2s ease-in-out}
+#btn_link span.link_img img{width:2.875rem; height:2.375rem; margin-bottom:0.3rem}
+#btn_link span.link_txt{color:#fff; font-size:1.125rem; font-weight:600; line-height:130%; word-break:keep-all; text-align:center}
+/* 하단 고정 버튼 - 최상단 */
+#btn_top {width:3.5rem; height:3.5rem; position:fixed; bottom:3rem; border-radius:100%; background:url(/public/test/images/common/ico_arrow_top.svg) center center /1rem auto no-repeat #32333A; z-index:100; transition:all .2s ease-in-out}
+.txt_center {text-align:center; display:block}
+
+@media screen and (min-width:767.1px) {
+    .brm {display:none !important}
+    .pc_block {display:block !important}
+    .mo_block,.mo_inline {display:none!important}
+    .mo_none {display:inline-block!important}
+    #btn_link {right:calc(50% - 660px - 2rem)}
+    #btn_top {right:calc(50% - 660px)}
+}/* lg */
+
+@media screen and (max-width:1380px) {
+    #btn_link {right:calc(4% - 2rem)}
+    #btn_top {right:4%}
+}
+@media screen and (max-width:767px) {
+    .brd {display:none !important}
+    .mo_block {display:block!important}
+    .mo_inline {display:inline-block!important}
+    .mo_none {display:none!important}
+    .pc_block {display:none!important}
+
+    /* #btn_link{height:8rem} */
+    #btn_top{width:4.66rem; height:4.66rem; background-size:1.33rem auto !important; bottom:2rem; right:1.83rem}    
+    /* #btn_link {right:calc(4% - 1.33rem);bottom:7.36rem} */
+    #btn_link {right:0.66rem; bottom:7.36rem}
+}/* sm */
+/* --------------------------------common end-------------------------- */
+
+
+
+/* --------------------------------header-------------------------------- */
+#header {position:fixed; top:0; left:0; right:0; width:100%; height:5.625rem; z-index:200; transition:.3s; background-color:#fff}
+#header .inner {display:flex; align-items:center; justify-content:space-between; height:5.625rem; position:relative; z-index:200}
+header .logo a,#header .logo img {display:block; width:100%; margin:0 auto}
+#header .logo {float:left; width:6.25rem; margin:0}
+#header .logo a {width:5.125rem; height:2.5rem; max-width:82px; background:url(/public/test/images/common/logo_bk.svg) center center/100% auto no-repeat}
+#header .gnb_wrapper,#header .select_lang ul {display:flex; justify-content:space-between; align-items:center}
+#header .gnb ul li {float:left}
+#header .gnb ul li:not(:last-child) {margin-right:3rem}
+#header .gnb>ul>li.active a {color:#fcc835 !important}
+#header .gnb ul li a {text-align:center; font-size:16px/*1rem*/; font-weight:500; line-height:100%; letter-spacing:-.03rem; color:#32333a}
+#header .select_lang ul::before {content:''; display:inline-block; width:1rem; height:1rem; background:url(/public/test/images/common/ico_lang_bk.svg) center center/100% auto no-repeat; float:left; vertical-align:middle; line-height:1.5rem; margin-right:.5rem}
+#header .select_lang ul li:not(:last-child) {margin-right:.5rem}
+#header .select_lang ul li a {color:#32333a}
+#header .select_lang ul li.active a {font-weight:700; border-bottom:2px solid #32333a}
+
+/* #header .logo a,#header .logo img {display:block; width:100%; margin:0 auto}
+#header .logo {float:left; width:6.25rem; margin:0}
+#header .logo a {width:5.125rem; height:2.5rem; max-width:82px; background:url(/public/test/images/common/logo.svg) center center/100% auto no-repeat}
+#header .gnb_wrapper,#header .select_lang ul {display:flex; justify-content:space-between; align-items:center}
+#header .gnb ul li {float:left}
+#header .gnb ul li:not(:last-child) {margin-right:3rem}
+#header .gnb ul li a {text-align:center; font-size:1rem; font-weight:500; line-height:100%; letter-spacing:-.03rem; color:#fff}
+#header .select_lang ul::before {content:''; display:inline-block; width:1rem; height:1rem; background:url(/public/test/images/common/ico_lang.svg) center center/100% auto no-repeat; float:left; vertical-align:middle; line-height:1.5rem; margin-right:.5rem}
+#header .select_lang ul li:not(:last-child) {margin-right:.5rem}
+#header .select_lang ul li a {color:#fff}
+#header .select_lang ul li.active a {font-weight:700; border-bottom:2px solid #fff}*/
+
+/* active 상태 */
+/* #header.active,
+#header.active_au {background-color:#fff}
+#header.active .logo a,
+#header.active_au .logo a {background:url(/public/test/images/common/logo_bk.svg) center center/100% auto no-repeat}
+#header.active .gnb ul li a,
+#header.active .select_lang ul li a,
+#header.active_au .gnb ul li a,
+#header.active_au  .select_lang ul li a {color:#32333a}
+#header.active .gnb ul li a:hover,#header.active .gnb>ul>li.active a,
+#header.active_au .gnb>ul>li.active a {color:#fcc835}
+#header.active .select_lang ul::before,
+#header.active_au  .select_lang ul::before {background:url(/public/test/images/common/ico_lang_bk.svg) center center/100% auto no-repeat}
+#header.active .select_lang ul li.active a,
+#header.active_au .select_lang ul li.active a {border-bottom:2px solid #32333a}*/
+
+/* 한영 전환 */
+#header .select_lang {display:none; margin-left:2.5rem}
+
+
+#header .btn_wrap,#header .nav_mo {display:none}
+
+
+
+@media screen and (max-width:767px) {
+    /* mobile menu */    
+    #header .gnb {display:none!important}
+    #header .nav_mo {display:block; position:fixed; left:0; top:0; width:100%; height:100%; z-index:199; background:#fff; transition:.5s; transform:translateX(100%); background:url(/public/test/images/common/gnb_mo_bg.png) bottom left /100% auto no-repeat #fff}
+    #header .nav_mo.on {transform:translateX(0)}
+    #header .nav_mo .gnb_mo {width:100%; height:100%; padding:8.66rem 1.33rem 2rem}
+    #header .nav_mo .gnb_mo>ul {display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start}
+    #header .nav_mo .gnb_mo>ul>li:not(:last-child) {margin-bottom:2.8rem}
+    #header .nav_mo .gnb_mo a {font-size:2.66rem; font-style:normal; font-weight:700; line-height:100%; letter-spacing:-.03rem; position:relative; z-index:5}
+    #header .nav_mo .gnb_mo .active::before {content:''; display:block; position:absolute; bottom:-5px; left:0; background-position:center left; background-size:auto 100%; background-repeat:no-repeat; width:100%; height:16px; z-index:0; background-image:url(/public/test/images/common/menu_line.svg)}
+    #header .nav_mo .select_lang {position:absolute; top:0; right:1.1rem; height:5.625rem; display:flex}
+    /*#header .nav_mo .partners ul {display:flex; justify-content:space-between; flex-wrap:wrap; align-items:center}
+    #header .nav_mo .partners ul li {width:calc((100% - 20px)/ 6); height:3.66rem; margin-right:4px; display:inline-flex; justify-content:center; align-items:center}
+    #header .nav_mo .partners ul li:nth-child(6n) {margin-right:0}
+    #header .nav_mo .partners ul li img {width:64%; height:auto}
+    #header .nav_mo .partners ul li:first-child img,#header .nav_mo .partners ul li:nth-child(6) img {width:40%}
+    #header .nav_mo .partners ul li:nth-child(2) img {width:100%}
+    #header .nav_mo .partners ul li:nth-child(3) img,#header .nav_mo .partners ul li:nth-child(8) img {width:84%}
+    #header .nav_mo .partners ul li:nth-child(11) img,#header .nav_mo .partners ul li:nth-child(4) img {width:89%}
+    #header .nav_mo .partners ul li:nth-child(7) img {width:68%}
+    #header .nav_mo .partners ul li:nth-child(10) img {width:57%}
+    #header .nav_mo .partners ul li:nth-child(12) img {width:45%}
+    #header .nav_mo .partners ul li:nth-child(13) img {width:54%}
+    #header .nav_mo .partners ul li:nth-child(14) img,#header .nav_mo .partners ul li:nth-child(15) img,#header .nav_mo .partners ul li:nth-child(16) img {width:82%}
+    #header .nav_mo .partners ul li:nth-child(17) img,#header .nav_mo .partners ul li:nth-child(18) img {width:75%}*/
+    #header .select_lang ul li a {font-size:1.4rem; color:#32333a}
+    #header .select_lang ul li:not(:last-child) {margin-right:8px}
+    #header .btn_menu,#header .btn_wrap {display:block; width:20px; height:14px}
+    #header .btn_wrap,#header .nav_mo .gnb_mo>ul>li {position:relative}
+    #header .btn_wrap {margin-left:2rem; display:flex; justify-content:flex-end; align-items:center; flex-direction:row}
+    #header .btn_wrap button {cursor:pointer}
+    #header .btn_menu {background:url(/public/test/images/common/btn_menu_bk.svg) center center/100% auto no-repeat; transition:.1s}
+    #header.active_mo .btn_menu.switch {background:url(/public/test/images/common/ico_close_bk.svg) center center/100% auto no-repeat; width:16px; height:16px}
+    #header .btn_home {display:none!important; background:url(/public/test/images/common/ico_home.svg) center center/100% auto no-repeat; width:18px; height:19px}
+    #header.active_mo .btn_home {display:inline-block!important; margin-right:1.33rem}
+    
+    /*  mobile active 상태 */
+    #header.active .btn_menu,
+    #header.active_au .btn_menu {display:block; background:url(/public/test/images/common/btn_menu_bk.svg) center center/100% auto no-repeat; width:20px; height:14px; transition:.1s}
+    #header.active .select_lang ul li a,#header.active_mo .select_lang ul li a,
+    #header.active_au .select_lang ul li a {color:#32333a}
+    #header.active_mo .logo a {background:url(/public/test/images/common/logo_bk.svg) center center/100% auto no-repeat; transition:.2s}
+    #header.active_mo .select_lang ul::before {background:url(/public/test/images/common/ico_lang_bk.svg) center center/100% auto no-repeat; transition:.2s}
+    #header.active_mo .select_lang ul li.active a {border-color:#32333a}
+    #header.active_mo .select_lang {display:none !important}
+
+    #header .select_lang ul::before {width:19px; height:19px; margin-top:1px}
+}
+@media screen and (min-width:640px) and (max-width:767px) {
+    #header .nav_mo .partners ul li {height:5.4rem}
+}
+/* --------------------------------header end-------------------------------- */
+
+
+/* --------------------------------footer-------------------------------- */
+#footer {width:100%; padding:5rem 0; background-color:#32333A}
+#footer .inner {display:flex; flex-direction:column; align-items:center; justify-content:space-between}
+#footer .f_logo {width:6.125rem; min-width:98px; max-width:138px; margin-bottom:2rem}
+#footer .f_logo img {width:100%}
+#footer .f_info {font-size:.875rem; color:#9EA0A9; font-style:normal; font-weight:400; line-height:100%; letter-spacing:-.03rem}
+@media screen and (max-width:700px) {
+  #footer .f_info {text-align:center; line-height:166%; font-size:1rem}
+}
+/* --------------------------------footer end-------------------------------- */
+
+
+/* --------------------------------popup-------------------------------- */
+/* #popup_all {width:100%; height:100vh}*/
+#popup_all .popup {display:table; width:100%; position:fixed; left:0; top:0; z-index:303}
+#popup_all > div {display:table; width:100%; height:100%; position:fixed; left:0; top:0; z-index:150}
+#popup_all .bg {width:100%; position:absolute; left:0; top:0; background-color:#000; opacity:.7}
+#popup_all .popup,#popup_all .bg {height:calc(var(--var,1vh) * 100)}
+/* #popup_all .popup,#popup_all .bg {height:100%}*/
+#popup_all .out_layer_box {display:table-cell; text-align:center; vertical-align:middle; width:100%; height:100%}
+#popup_all .in_layer_box {display:inline-block; position:relative; box-shadow:0 15px 35px rgba(0,0,0,0.45); background-color:#fff; border-radius:1rem}
+#popup_all .btn_close {position:absolute; right:0; top:-2rem; width:1.25rem; height:1.25rem; background:url(/public/test/images/common/ico_close.svg) no-repeat center/contain; cursor:pointer; z-index:99}
+/* --------------------------------popup end-------------------------------- */
+
+
+
+
+
+
+@media screen and (min-width:1024.1px) and (max-width:1280px) {
+
+}
+@media screen and (min-width:767.1px) and (max-width:1024px) {
+   
+}
+@media screen and (max-width:767px) {
+
+}
+
+@media screen and (min-width:1024.1px) {
+
+}/* lg */
+
+@media screen and (max-width:1024px) {
+
+}/* md */
+@media screen and (max-width:767px) {
+
+}/* sm */

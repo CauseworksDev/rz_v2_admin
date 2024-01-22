@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+    <link rel="stylesheet" href="/public/login/assets/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/public/login/assets/fonts/ionicons.min.css">
+    <link rel="stylesheet" href="/public/login/assets/css/Login-Form-Dark.css">
+    <link rel="stylesheet" href="/public/login/assets/css/styles.css">
+    <script src="/public/login/assets/js/jquery.min.js"></script>
+    <script src="/public/login/assets/bootstrap/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+    <script type="text/javascript">
+        function enterkey() {
+            if (window.event.keyCode == 13) {
+                login();
+
+            }
+        }
+        let login = function () {
+            if($("#username").val() ==""||$("#password").val() ==""){
+                swal("회원 정보를 입력해주세요.", {
+                    icon: "error"
+                })
+            }else{
+                adminLogin()
+            }
+        }
+        let adminLogin = function(){
+            let data = {
+                "id" :$("#username").val(),
+                "pwd" :$("#password").val(),
+            };
+
+            $.ajax({
+                url:"/admin/office/user/login",
+                cache:false,
+                dataType :"json",
+                data : data,
+                type:"post",
+                success : function(response,s,j ){
+                    if(response.result.resultCode==200){
+                        location.href = "/admin/office/content"
+                    }else{
+                        swal("접근권한이 없습니다.", {
+                            icon: "error"
+                        })
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+
+<body>
+
+    <div class="login-dark">
+        <form method="post">
+            <h2 class="sr-only">Login Form</h2>
+            <div class="illustration"><i class="icon ion-ios-locked-outline"></i></div>
+            <div class="form-group"><input class="form-control" type="text" id="username" name="username" placeholder="ID" onkeydown="enterkey()"></div>
+            <div class="form-group"><input class="form-control" type="password" id="password" name="password" placeholder="Password" onkeydown="enterkey()"></div>
+            <div class="form-group">
+                <a class="btn btn-primary btn-block" id="btn_login" href="javascript:login();">Log In</a>
+            </div>
+            <a href="#" class="forgot">Forgot your email or password?</a></form>
+    </div>
+
+</body>
+
+</html>
