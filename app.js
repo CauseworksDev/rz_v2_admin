@@ -56,7 +56,7 @@ app.use(express.urlencoded({ limit:"50mb", extended: false }));
  * 각 서버별 셋팅*/
 const setServer = require('./config/app.setting/setServer')
 setServer.set()
-
+let scheduler = require('./src/controller/job');
 const contentRouter = require('./src/router/api/content.router');
 const bannerRouter = require('./src/router/api/banner.router');
 const popupRouter = require('./src/router/api/popup.router');
@@ -90,6 +90,11 @@ app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
+/**
+* 스케쥴러 아래에 추가하여 시동
+* */
+scheduler.jobStaticsStatus();
+
 
 
 module.exports = app;
