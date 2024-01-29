@@ -9,8 +9,8 @@ class Env {
     systemConfigPath(){
         let config_file
         switch (this.NODE_ENV) {
-            case "prod":
-                config_file = path.resolve(__dirname, '..', 'config', 'prod.config.js');
+            case "live":
+                config_file = path.resolve(__dirname, '..', 'config', 'live.config.js');
                 break;
             case "qc":
                 config_file = path.resolve(__dirname, '..', 'config', 'qc.config.js');

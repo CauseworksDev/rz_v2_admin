@@ -1,8 +1,8 @@
 const mysql = require('mysql2/promise');
 let envConfigFile = '';
 switch(process.env.NODE_ENV) {
-    case 'prod':
-        envConfigFile = __dirname + '/../config/prod.config';
+    case 'live':
+        envConfigFile = __dirname + '/../config/live.config';
         break;
     case 'qc':
         envConfigFile = __dirname + '/../config/qc.config';

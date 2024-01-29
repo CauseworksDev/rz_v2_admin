@@ -12,7 +12,7 @@ let awsSdk = require('aws-sdk');
 let path_config = '';
 switch (process.env.NODE_ENV) {
     case 'prod':
-        path_config = __dirname + '/../config/prod.config.js';
+        path_config = __dirname + '/../config/live.config.js';
         break;
     case 'qc':
         path_config = __dirname + '/../config/qc.config.js';

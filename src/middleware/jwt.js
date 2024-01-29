@@ -17,8 +17,8 @@ const TOKEN_DAY_LONG = 60;
 
 let path_config = '';
 switch (process.env.NODE_ENV) {
-    case 'prod':
-        path_config = __dirname + '/../config/prod.config.js';
+    case 'live':
+        path_config = __dirname + '/../config/live.config.js';
         break;
     case 'qc':
         path_config = __dirname + '/../config/qc.config.js';
