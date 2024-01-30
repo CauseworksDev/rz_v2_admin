@@ -1,0 +1,49 @@
+
+<div class="nk-header-brand d-xl-none">
+    <a href="/admin/office/content" class="logo-link">
+        <img class="logo-light logo-img" src="/public/office/images/logo.png" srcset="/public/office/images/logo.png" alt="logo">
+        <img class="logo-dark logo-img" src="/public/office/images/logo.png" srcset="/public/office/images/logo.png" alt="logo-dark">
+    </a>
+</div><!-- .nk-header-brand -->
+<div class="nk-header-search ml-3 ml-xl-0">
+</div><!-- .nk-header-news -->
+<div class="nk-header-tools">
+    <ul class="nk-quick-nav">
+        <li class="dropdown user-dropdown">
+            <a href="#" class="dropdown-toggle mr-n1" data-toggle="dropdown">
+                <div class="user-toggle">
+                    <div class="user-avatar sm">
+                        <em class="icon ni ni-user-alt"></em>
+                    </div>
+                    <div class="user-info d-none d-xl-block">
+                        <div class="user-status user-status-unverified"></div>
+                        <div class="user-name dropdown-indicator"><%=session_user.usr_id%></div>
+                    </div>
+                </div>
+            </a>
+            <div class="dropdown-menu dropdown-menu-md dropdown-menu-right">
+                <div class="dropdown-inner user-card-wrap bg-lighter d-none d-md-block">
+                    <div class="user-card">
+                        <div class="user-avatar">
+                            <em class="icon ni ni-user-alt"></em>
+                        </div>
+                        <div class="user-info">
+                            <span class="lead-text"><%=session_user.usr_id%></span>
+<!--                            <span class="sub-text">info@softnio.com</span>-->
+                        </div>
+                    </div>
+                </div>
+                <div class="dropdown-inner">
+                    <ul class="link-list">
+                        <li><a class="dark-switch" href ="javascript:darkCheck()"><em class="icon ni ni-moon"></em><span>Dark Mode</span></a></li>
+                    </ul>
+                </div>
+                <div class="dropdown-inner">
+                    <ul class="link-list">
+                        <li><a href="/admin/office/user/signout"><em class="icon ni ni-signout"></em><span>Sign out</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
