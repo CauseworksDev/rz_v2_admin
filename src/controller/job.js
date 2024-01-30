@@ -1,5 +1,6 @@
 const schedule = require('node-schedule');
 const statisticsController = require('./statistics.controller');
+const moment = require('moment');
 
 
 jobStaticsStatus = () => {
@@ -13,7 +14,7 @@ jobStaticsStatus = () => {
     }
 
     schedule.scheduleJob(`${period}`, async () => {
-        console.log(process.env.NODE_ENV,"환경 스케쥴러 시작", Math.floor(+ new Date() / 1000));
+        console.log(process.env.NODE_ENV,"환경 스케쥴러 시작", moment().format("YYYY-MM-DD HH:mm:ss"));
         // await statisticsController.handleJobStatistics();
     });
 };

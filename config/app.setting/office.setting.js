@@ -11,6 +11,7 @@ const officeSeaLink = require("../../src/router/admin/seaLink");
 exports.set = app =>{
     /**
      * admin office url설정*/
+    app.use('/', officeContent);
     app.use('/admin/office/content', officeContent);
     app.use('/admin/office/banner', officeBanner);
     app.use('/admin/office/popup', officePopup);
